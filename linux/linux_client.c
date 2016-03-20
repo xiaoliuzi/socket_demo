@@ -14,15 +14,15 @@ int main(int argc, char* argv[])
 {
 
 	char ch;
-	char str[MAX_LINE];
+	char str[MAX_LINE] = {"\0"};
 	int i = 0;
 
 	struct sockaddr_in sin;
-	char buf[MAX_LINE];
+	char buf[MAX_LINE] = {"\0"};
 	int s_fd;
 	int port = PORT;
 	int n;
-
+	int j = 0;
 	if (argc < 1) {
 		printf("Not enough arguments\n");
 	}
@@ -46,13 +46,15 @@ int main(int argc, char* argv[])
 	while( (ch=getchar()) != EOF ) {
 		if (i<MAX_LINE && ch != '\n' ) {
 			str[i++] = ch;
+			continue;
 		}
 		str[i] = '\n';
 		str[i+1] = '\0';
 		n = write(s_fd, str, strlen(str)+1);
-		if( (n=read(s_fd, buf, MAX_LINE)) != 0 ) {
-			printf("%s", buf);
-		}
+		n=read(s_fd, buf, strlen(str)+1);
+		printf("%s", buf);
+
+		i = 0;	
 	}
 
 	if( close(s_fd) == -1 ) {

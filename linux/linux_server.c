@@ -6,10 +6,28 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 #define MAX_LINE 100
 #define PORT 8000
 
+
+/* Returns true on success, or false if there was an error. */
+bool set_socket_blocking_enable(int fd, bool blocking)
+{
+	if (fd < 0)
+		return false;
+#ifdef WIN32
+	unsigned long mode = blocking ? 0 : 1;
+	return (ioctlsocket(fd, FIONBIO, &mode) == 0) ? true : false;
+#else
+	int flags = fcntl(fd, F_GETFL, 0);
+	if (flags < 0)
+		return false;
+	flags = blocking ? (flags&~O_NONBLOCK) : (flags|O_NONBLOCK);
+	return (fcntl(fd, F_SETFL, flags) == 0) ? true : false;
+#endif
+}
 
 int main(void)
 {
@@ -22,7 +40,7 @@ int main(void)
 	char addr_p[INET_ADDRSTRLEN];
 	int port = PORT;
 	int n;
-
+	static int i;
 	int socket_fd[MAX_LINE];
 	int count = 0;
 
@@ -30,32 +48,34 @@ int main(void)
 	sin.sin_family = AF_INET;
 	sin.sin_addr.s_addr = INADDR_ANY;
 	sin.sin_port = htons(port);
-        
-	l_fd = socket(PF_INET, SOCK_STREAM, 0);
+    for(i = 0; i < MAX_LINE; i++) 
+		set_socket_blocking_enable(socket_fd[i], true);
+
+	l_fd = socket(AF_INET, SOCK_STREAM, 0);
 	bind(l_fd, (struct sockaddr*)&sin, sizeof(sin));
 	listen(l_fd, 1024);
 	printf("waiting ...\n");
 
-	int flags = fcntl(c_fd, F_GETFL, 0);
-    fcntl(c_fd, F_SETFL, flags | O_NONBLOCK);
 
 	while(1) {
 		c_fd = accept(l_fd, (struct sockaddr*)&cin, &len);
-		printf("errno = %x\n", errno);
-		printf("EAGAIN = %x\n", EAGAIN);
-		printf("EWOULDBLOCK = %x\n", EWOULDBLOCK);
-		
+		printf("accept return :%x\n", c_fd);	
 		if (c_fd == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
 			printf("no client connect\n");
-
-			for ( int i=0; i< count+1&& i<MAX_LINE; i++) {
-				socket_fd[i] = -2;
-				socket_fd[i] = c_fd;
-				count++;
-				n=read(socket_fd[i], buf, MAX_LINE);
-				n=write(socket_fd[i], buf, n);
-				printf("write read n is :%d\n", n );	
-			}	
+//#if 0
+		for (  i=0; i< count+1&& i<MAX_LINE; i++) {
+			socket_fd[i] = c_fd;
+			count++;
+			n=read(socket_fd[i], buf, MAX_LINE);
+			printf("Server recv :%s\n", buf );	
+			buf[strlen(buf)+1] = '\0';
+			n=write(socket_fd[i], buf, strlen(buf)+1);
+//#endif
+		
+//				n=read(c_fd, buf, MAX_LINE);
+//				printf("Server recv :%s\n", buf );	
+//				n=write(c_fd, buf, strlen(buf)+1);
+		}	
 		
 
 
