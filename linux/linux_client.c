@@ -23,12 +23,16 @@ int main(int argc, char* argv[])
 	int port = PORT;
 	int n;
 
-	if (argc > 1) {
+	if (argc < 1) {
+		printf("Not enough arguments\n");
 	}
 	
+	port = atoi(argv[2]);
+	printf("port is :%d\n", port);
+	printf("ip is :%s\n", argv[1]);
 	bzero(&sin, sizeof(sin));
 	sin.sin_family = AF_INET;
-	inet_pton(AF_INET, "127.0.0.1", &sin.sin_addr);
+	inet_pton(AF_INET, argv[1], &sin.sin_addr);
 	sin.sin_port = htons(port);
 	
 	if ( (s_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1 ) {
@@ -37,10 +41,10 @@ int main(int argc, char* argv[])
 	if ( connect(s_fd, (struct sockaddr_in *)&sin, sizeof(sin)) == -1) {
 		printf("fail to connect\n");
 	}
-
+	printf("Input your string:\n");
 
 	while( (ch=getchar()) != EOF ) {
-		while (i<MAX_LINE || ch != '\n' ) {
+		if (i<MAX_LINE && ch != '\n' ) {
 			str[i++] = ch;
 		}
 		str[i] = '\n';
