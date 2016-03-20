@@ -48,22 +48,27 @@ int main(void)
 	sin.sin_family = AF_INET;
 	sin.sin_addr.s_addr = INADDR_ANY;
 	sin.sin_port = htons(port);
-    for(i = 0; i < MAX_LINE; i++) 
-		set_socket_blocking_enable(socket_fd[i], true);
 
 	l_fd = socket(AF_INET, SOCK_STREAM, 0);
 	bind(l_fd, (struct sockaddr*)&sin, sizeof(sin));
 	listen(l_fd, 1024);
 	printf("waiting ...\n");
 
+    for(i = 0; i < MAX_LINE; i++) 
+		set_socket_blocking_enable(socket_fd[i], true);
+
 
 	while(1) {
-		c_fd = accept(l_fd, (struct sockaddr*)&cin, &len);
+		for (  i=0; i< count+1&& i<MAX_LINE; i++) {
+		if (i = 0) {
+			socket_fd[i] = accept(l_fd, (struct sockaddr*)&cin, &len);
+			set_socket_blocking_enable(c_fd, true);
+		}
+			set_socket_blocking_enable(c_fd, true);
 		printf("accept return :%x\n", c_fd);	
 		if (c_fd == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
 			printf("no client connect\n");
 //#if 0
-		for (  i=0; i< count+1&& i<MAX_LINE; i++) {
 			socket_fd[i] = c_fd;
 			count++;
 			n=read(socket_fd[i], buf, MAX_LINE);
