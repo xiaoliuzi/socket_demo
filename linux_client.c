@@ -14,7 +14,7 @@ int main(int argc, char* argv[]
 			str[i++] = ch;
 		}
 		str[i] = '\n';
-		str[i+1] = '\0';/**/
+/*		str[i+1] = '\0';*/
 	}
 
 	return 0;
