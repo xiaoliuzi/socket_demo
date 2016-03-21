@@ -27,12 +27,14 @@ int main(int argc, char* argv[])
 		printf("Not enough arguments\n");
 	}
 	
-	port = atoi(argv[2]);
+//	port = atoi(argv[2]);
+	port = 8000;
 	printf("port is :%d\n", port);
-	printf("ip is :%s\n", argv[1]);
+//	printf("ip is :%s\n", argv[1]);
 	bzero(&sin, sizeof(sin));
 	sin.sin_family = AF_INET;
-	inet_pton(AF_INET, argv[1], &sin.sin_addr);
+	//inet_pton(AF_INET, argv[1], &sin.sin_addr);
+	inet_pton(AF_INET, "127.0.0.1", &sin.sin_addr);
 	sin.sin_port = htons(port);
 	
 	if ( (s_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1 ) {

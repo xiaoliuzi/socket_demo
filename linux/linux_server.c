@@ -54,32 +54,35 @@ int main(void)
 	listen(l_fd, 1024);
 	printf("waiting ...\n");
 
-    for(i = 0; i < MAX_LINE; i++) 
-		set_socket_blocking_enable(socket_fd[i], true);
+
+
+	set_socket_blocking_enable(c_fd, false);
 
 
 	while(1) {
-		for (  i=0; i< count+1&& i<MAX_LINE; i++) {
-		if (i = 0) {
-			socket_fd[i] = accept(l_fd, (struct sockaddr*)&cin, &len);
-			set_socket_blocking_enable(c_fd, true);
-		}
-			set_socket_blocking_enable(c_fd, true);
-		printf("accept return :%x\n", c_fd);	
-		if (c_fd == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
+		c_fd = accept(l_fd, (struct sockaddr*)&cin, &len);
+		if ( (errno == EAGAIN || errno == EWOULDBLOCK)) {
 			printf("no client connect\n");
-//#if 0
+			//continue;
+		}
+		printf("c_fd is :%x\n", c_fd);
+		printf("errno is :%x\n", errno);
+		printf("EAGAIN is :%d\n", EAGAIN);
+		printf("EWOULDBLOCK is :%d\n", EWOULDBLOCK);
+		printf("ECONNABORTED is :%d\n", ECONNABORTED);
+		printf("EPROTO is :%d\n", EPROTO);
+		printf("EINTR is :%d\n", EINTR);
+		for (i=0; i< count+1&& i<MAX_LINE; i++) {
+			socket_fd[i] = c_fd;
+			count++;
+//			set_socket_blocking_enable(c_fd, true);
+			//printf("accept return :%x\n", c_fd);	
 			socket_fd[i] = c_fd;
 			count++;
 			n=read(socket_fd[i], buf, MAX_LINE);
 			printf("Server recv :%s\n", buf );	
 			buf[strlen(buf)+1] = '\0';
 			n=write(socket_fd[i], buf, strlen(buf)+1);
-//#endif
-		
-//				n=read(c_fd, buf, MAX_LINE);
-//				printf("Server recv :%s\n", buf );	
-//				n=write(c_fd, buf, strlen(buf)+1);
 		}	
 		
 
