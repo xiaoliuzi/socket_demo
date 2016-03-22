@@ -54,44 +54,40 @@ int main(void)
 	listen(l_fd, 1024);
 	printf("waiting ...\n");
 
-
-
 	set_socket_blocking_enable(c_fd, false);
-
+	c_fd = accept(l_fd, (struct sockaddr*)&cin, &len);
+	printf("cfd is :%d\n", c_fd);
+	printf("errno is :%d\n", errno);
+	printf("EAGAIN is :%d\n", EAGAIN);
+	printf("EWOULDBLOCK is :%d\n", EWOULDBLOCK);
+	printf("EINTR is :%d\n", EINTR);
+#if 0
 
 	while(1) {
+		set_socket_blocking_enable(c_fd, false);
 		c_fd = accept(l_fd, (struct sockaddr*)&cin, &len);
-		if ( (errno == EAGAIN || errno == EWOULDBLOCK)) {
-			printf("no client connect\n");
-			//continue;
+	
+		printf("c_fd is :%d\n", c_fd);
+
+		if (c_fd == EINTR ) {
+			printf("No.%d connected\n", count);
+			if(count < 100)
+				socket_fd[count++] = c_fd;
 		}
-		printf("c_fd is :%x\n", c_fd);
-		printf("errno is :%x\n", errno);
-		printf("EAGAIN is :%d\n", EAGAIN);
-		printf("EWOULDBLOCK is :%d\n", EWOULDBLOCK);
-		printf("ECONNABORTED is :%d\n", ECONNABORTED);
-		printf("EPROTO is :%d\n", EPROTO);
-		printf("EINTR is :%d\n", EINTR);
-		for (i=0; i< count+1&& i<MAX_LINE; i++) {
-			socket_fd[i] = c_fd;
-			count++;
-//			set_socket_blocking_enable(c_fd, true);
-			//printf("accept return :%x\n", c_fd);	
-			socket_fd[i] = c_fd;
-			count++;
+		for (i=0; i< count+1 && i< 3; i++) {
 			n=read(socket_fd[i], buf, MAX_LINE);
 			printf("Server recv :%s\n", buf );	
 			buf[strlen(buf)+1] = '\0';
 			n=write(socket_fd[i], buf, strlen(buf)+1);
 		}	
 		
-
-
 		inet_ntop(AF_INET, &cin.sin_addr, addr_p, sizeof(addr_p));
 		printf("client IP is %s, port is %d\n", addr_p, ntohs(sin.sin_port));
- 		printf("content is :%s\n",buf );	
 		
-	} 
+	}
+#endif 
+
+
 	
 	if (close(l_fd) == -1) {
 		printf("fail to close\n");
