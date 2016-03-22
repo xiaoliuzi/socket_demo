@@ -54,7 +54,17 @@ int main(void)
 	listen(l_fd, 1024);
 	printf("waiting ...\n");
 
-	set_socket_blocking_enable(c_fd, false);
+//	set_socket_blocking_enable(c_fd, false);
+	int flags = fcntl(l_fd, F_GETFL, 0);
+	fcntl(l_fd, F_SETFL, flags|O_NONBLOCK);
+
+	c_fd = accept(l_fd, (struct sockaddr*)&cin, &len);
+	printf("cfd is :%d\n", c_fd);
+	printf("errno is :%d\n", errno);
+	printf("EAGAIN is :%d\n", EAGAIN);
+	printf("EWOULDBLOCK is :%d\n", EWOULDBLOCK);
+	printf("EINTR is :%d\n", EINTR);
+
 	c_fd = accept(l_fd, (struct sockaddr*)&cin, &len);
 	printf("cfd is :%d\n", c_fd);
 	printf("errno is :%d\n", errno);
