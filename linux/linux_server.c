@@ -116,6 +116,7 @@ int main(void)
 	fcntl(l_fd, F_SETFL, flags|O_NONBLOCK);
 
 	c_fd = accept(l_fd, (struct sockaddr*)&cin, &len);
+
 	printf("cfd is :%d\n", c_fd);
 	printf("errno is :%d\n", errno);
 	printf("EAGAIN is :%d\n", EAGAIN);
@@ -131,30 +132,37 @@ int main(void)
 //#if 0
 
 	while(1) {
-		int flags = fcntl(l_fd, F_GETFL, 0);
-		fcntl(l_fd, F_SETFL, flags|O_NONBLOCK);
+		set_socket_blocking_enable(l_fd, false);
+//		int flags = fcntl(l_fd, F_GETFL, 0);
+//		fcntl(l_fd, F_SETFL, flags|O_NONBLOCK);
 		c_fd = accept(l_fd, (struct sockaddr*)&cin, &len);
 		printf("cfd is :%d\n", c_fd);
 		if(c_fd != -1) {
 //	if(errno == EAGAIN || errno == EWOULDBLOCK) {
 //	if(c_fd == EAGAIN || c_fd == EWOULDBLOCK) {
+			printf("cfd is :%d\n", c_fd);
 			if(count < 10) {
 				printf("No.%d connected\n", count);
 				socket_fd[count++] = c_fd;
 			}
 		}
+		else if(c_fd == -1&& (errno == EAGAIN || errno == EWOULDBLOCK) ) {
+
 //		if (errno == EAGAIN ) {
 	//	if(c_fd == -1) {
 			for (i=0; i< count && i< 100; i++) {
-				printf("count is :%d\n", count);
 				printf("i is :%d\n", i);
+				printf("count is :%d\n", count);
 				printf("socket[%d] is :%d\n", i, socket_fd[i]);
 				n=readn(socket_fd[i], &len_content, sizeof(len_content));
+				printf("read length is :%d\n", len_content);
 				n=readn(socket_fd[i], buf, len_content);
+				printf("read :%d characters \n", n);
 				printf("Server recv :%s\n", buf );	
 				buf[strlen(buf)+1] = '\0';
 				n=writen(socket_fd[i], &len_content, sizeof(len_content));
 				n=write(socket_fd[i], buf, strlen(buf)+1);
+				printf("write :%d characters \n", n);
 			}	
 //		}
 		
