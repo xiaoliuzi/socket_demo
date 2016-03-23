@@ -12,8 +12,8 @@
 #define PORT 8000
 
 // page 72
-ssize_t      /* Read "n" bytes from a descriptor. */
-readn( int fd, void *vptr, size_t n)
+      /* Read "n" bytes from a descriptor. */
+ssize_t readn( int fd, void *vptr, size_t n)
 {
     size_t nleft;
     ssize_t nread;
@@ -40,8 +40,8 @@ readn( int fd, void *vptr, size_t n)
 
 
 //page 73
-ssize_t                       /* Write "n" bytes to a descriptor. */
-writen(int fd, const void *vptr, size_t n)
+                      /* Write "n" bytes to a descriptor. */
+ssize_t writen(int fd, const void *vptr, size_t n)
 {
     size_t nleft;
     ssize_t nwritten;
