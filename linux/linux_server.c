@@ -11,6 +11,7 @@
 #define MAX_LINE 100
 #define PORT 8000
 
+ssize readn()
 
 /* Returns true on success, or false if there was an error. */
 bool set_socket_blocking_enable(int fd, bool blocking)
@@ -54,7 +55,7 @@ int main(void)
 	listen(l_fd, 1024);
 	printf("waiting ...\n");
 
-//	set_socket_blocking_enable(c_fd, false);
+//	set_socket_blocking_enable(l_fd, false);
 	int flags = fcntl(l_fd, F_GETFL, 0);
 	fcntl(l_fd, F_SETFL, flags|O_NONBLOCK);
 
@@ -71,33 +72,37 @@ int main(void)
 	printf("EAGAIN is :%d\n", EAGAIN);
 	printf("EWOULDBLOCK is :%d\n", EWOULDBLOCK);
 	printf("EINTR is :%d\n", EINTR);
-#if 0
+//#if 0
 
 	while(1) {
-		set_socket_blocking_enable(c_fd, false);
+		int flags = fcntl(l_fd, F_GETFL, 0);
+		fcntl(l_fd, F_SETFL, flags|O_NONBLOCK);
 		c_fd = accept(l_fd, (struct sockaddr*)&cin, &len);
-	
-		printf("c_fd is :%d\n", c_fd);
-
-		if (c_fd == EINTR ) {
-			printf("No.%d connected\n", count);
-			if(count < 100)
+		printf("cfd is :%d\n", c_fd);
+		if(c_fd != -1) {
+//	if(errno == EAGAIN || errno == EWOULDBLOCK) {
+//	if(c_fd == EAGAIN || c_fd == EWOULDBLOCK) {
+			if(count < 10) {
+				printf("No.%d connected\n", count);
 				socket_fd[count++] = c_fd;
+			}
 		}
-		for (i=0; i< count+1 && i< 3; i++) {
-			n=read(socket_fd[i], buf, MAX_LINE);
-			printf("Server recv :%s\n", buf );	
-			buf[strlen(buf)+1] = '\0';
-			n=write(socket_fd[i], buf, strlen(buf)+1);
-		}	
+//		if (errno == EAGAIN ) {
+	//	if(c_fd == -1) {
+			for (i=0; i< count && i< 100; i++) {
+				printf("count is :%d\n", count);
+				printf("i is :%d\n", i);
+				printf("socket[%d] is :%d\n", i, socket_fd[i]);
+				n=read(socket_fd[i], buf, MAX_LINE);
+				printf("Server recv :%s\n", buf );	
+				buf[strlen(buf)+1] = '\0';
+				n=write(socket_fd[i], buf, strlen(buf)+1);
+			}	
+//		}
 		
-		inet_ntop(AF_INET, &cin.sin_addr, addr_p, sizeof(addr_p));
-		printf("client IP is %s, port is %d\n", addr_p, ntohs(sin.sin_port));
 		
 	}
-#endif 
-
-
+//#endif 
 	
 	if (close(l_fd) == -1) {
 		printf("fail to close\n");
