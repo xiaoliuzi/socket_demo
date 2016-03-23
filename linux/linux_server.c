@@ -11,7 +11,62 @@
 #define MAX_LINE 100
 #define PORT 8000
 
-ssize readn()
+// page 72
+ssize_t      /* Read "n" bytes from a descriptor. */
+readn( int fd, void *vptr, size_t n)
+{
+    size_t nleft;
+    ssize_t nread;
+    char *ptr;
+
+    ptr = vptr;
+    nleft = n;
+    while (nleft > 0) {
+        if ( (nread = read(fd, ptr, nleft)) < 0) {
+            if ( errno == EINTR)
+                nread = 0;     /* and call read() again */
+            else
+                return (-1);
+
+        } else if (nread == 0)
+            break;            /* EOF */
+
+        nleft -= nread;
+        ptr += nread;
+    }
+
+    return (n - nleft);      /* return >= 0 */
+}
+
+
+//page 73
+ssize_t                       /* Write "n" bytes to a descriptor. */
+writen(int fd, const void *vptr, size_t n)
+{
+    size_t nleft;
+    ssize_t nwritten;
+    const char *ptr;
+
+
+    ptr = vptr;
+    nleft = n;
+    while( nleft > 0) {
+        if ( (nwritten = write(fd, ptr, nleft)) <= 0) {
+            if (nwritten < 0 && errno == EINTR)
+                nwritten = 0;   /*adn call write() again */
+            else
+                return (-1);    /* error */
+        }
+
+        nleft -= nwritten;
+        ptr += nwritten;
+    }
+
+    return (n);
+}
+
+
+
 
 /* Returns true on success, or false if there was an error. */
 bool set_socket_blocking_enable(int fd, bool blocking)
@@ -44,6 +99,7 @@ int main(void)
 	static int i;
 	int socket_fd[MAX_LINE];
 	int count = 0;
+	int len_content;
 
 	bzero(&sin, sizeof(sin));
 	sin.sin_family = AF_INET;
@@ -93,9 +149,11 @@ int main(void)
 				printf("count is :%d\n", count);
 				printf("i is :%d\n", i);
 				printf("socket[%d] is :%d\n", i, socket_fd[i]);
-				n=read(socket_fd[i], buf, MAX_LINE);
+				n=readn(socket_fd[i], &len_content, sizeof(len_content));
+				n=readn(socket_fd[i], buf, len_content);
 				printf("Server recv :%s\n", buf );	
 				buf[strlen(buf)+1] = '\0';
+				n=writen(socket_fd[i], &len_content, sizeof(len_content));
 				n=write(socket_fd[i], buf, strlen(buf)+1);
 			}	
 //		}
