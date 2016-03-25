@@ -13,6 +13,8 @@
 
 // page 72
       /* Read "n" bytes from a descriptor. */
+
+// If not read n length characters , readn() will be blocked.
 ssize_t readn( int fd, void *vptr, size_t n)
 {
     size_t nleft;
@@ -160,11 +162,12 @@ int main(void)
 				printf("read :%d characters \n", n);
 				printf("Server recv :%s\n", buf );	
 				buf[strlen(buf)+1] = '\0';
+				len_content = strlen(buf)+1;
 				n=writen(socket_fd[i], &len_content, sizeof(len_content));
-				n=write(socket_fd[i], buf, strlen(buf)+1);
+				n=write(socket_fd[i], buf, len_content);
 				printf("write :%d characters \n", n);
 			}	
-//		}
+		}
 		
 		
 	}
