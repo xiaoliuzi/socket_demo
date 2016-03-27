@@ -114,14 +114,16 @@ int main(int argc, char* argv[])
 		}
 		str[i] = '\n';
 		str[i+1] = '\0';
-
-		data_len = strlen(str)+1;
-		
-		n = writen(s_fd, &data_len, sizeof(data_len));
-		n = writen(s_fd, str, strlen(str)+1);
-
-		n = readn(s_fd, &data_len, sizeof(data_len));
-		n=readn(s_fd, buf, strlen(str)+1);
+		n = write(s_fd, str, strlen(str)+1);
+		if (n<0) {
+			printf("write n is :%d\n", n);
+			continue;
+		}
+		n=read(s_fd, buf, strlen(str)+1);
+		if (n<0) {
+			printf("read n is :%d\n", n);
+			continue;
+		}
 		printf("%s", buf);
 
 		i = 0;	
