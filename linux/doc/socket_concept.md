@@ -52,11 +52,20 @@ struct sockaddr_in {
 
 
 ##### _in后缀意味着什么？
-_in后缀是互联网(internet)的缩写，而不是输入(input)的缩写。
-connect、bing和accept函数要求一个指向与协议相关的套接字地址结构的指针。套接字接口的设计者面临的问题是，如何定义这些函数，使之能接受各种类型的套接字地址结构。现在，我们可以使用通用的void*指针，那时在C中并不存在这种类型的指针。解决办法是定义套接字函数要求一个指向通用sockaddr结构的指针，然后要求应用程序将与协议特定的结构的指针强制转换成这个通用结构。为了简化代码示例，我们跟随
+
+ _in 后缀是互联网(internet)的缩写，而不是输入(input)的缩写。
+**connect、bing和accept函数要求一个指向与协议相关的套接字地址结构的指针。套接字接口的设计者面临的问题是，如何定义这些函数，使之能接受各种类型的套接字地址结构。** **现在，我们可以使用通用的void*指针**，那时在C中并不存在这种类型的指针。解决办法是定义套接字函数要求一个指向通用sockaddr结构的指针，然后要求应用程序将与协议特定的结构的指针强制转换成这个通用结构。为了简化代码示例，我们跟随
 Stevens的指导，定义下面的类型：
 	typedef struct sockaddr SA;
 然后无论何时需要将sockaddr_in结构强制转换成通用sockaddr结构，我们都使用这个类型。
+
+为什么已经有了socket_addr_in还要设计socketaddr这样的类型，也就是说为什么connect/bind/之类的不直接把参数定义成sockaddr_in或者直接将下面的sockaddr_in定义为sockaddr?反而要在传参或者初始化过程中通过强制类型转换？
+
+答：主要参考上一段中**包括的部分内容** 通俗说，不同的系统或者说不同的网络协议族（网络通信协议），结构是不一样的，这样通过再加一层封装以后，可以是一个统一的结构，也就是，所有结构都是sockaddr.
+sockaddr 结构的定义在/usr/include/x86_64-linux-gnu/bits/socket.h中
+sockaddr_in 结构定义在/usr/include/netinet/in.h中
+
+参看in.h中，还有其他的协议族，比如下面的sockaddr_in6， 应该也可以调用操作系统的同一套接口，即:connect/bind之类的接口，但是，应该只需强制类型转换为sockaddr即可。
 
 
 accept函数

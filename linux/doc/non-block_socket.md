@@ -233,4 +233,5 @@ int main(int argc, char *argv[])
 	如果运行如上程序会发现调用accept可以理解返回，但这样会耗费大量的cpu time，实际中并不会这样使用。实际中将non-blocking和select结合使用。
 	
 #### non-blocking和select结合使用
-select通过轮询, 
+select通过轮询,监视指定file descriptor(包括socket)的变化，知道哪些文件描述符ready for reading,哪些文件描述符ready for writing，哪些文件描述符发生了错误等等。select和non-blocking结合使用可很好地实现socket的多client同步通信。
+
